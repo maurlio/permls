@@ -1,0 +1,14 @@
+# Executável
+permls
+
+# Diretório de build
+build/
+
+# Arquivos objeto
+*.o
+
+# Arquivos gerados pelo sistema ou IDEs comuns
+*~
+\#*
+.DS_Store
+*.swp
