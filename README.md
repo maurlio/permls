@@ -1,52 +1,27 @@
-# Permls: Permissões de Arquivos Simplificadas para Iniciantes
+# permls
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-yellow)
+Ferramenta de linha de comando em **C** para visualizar permissões de arquivos no Linux de forma clara.
 
-O **permls** é uma ferramenta de linha de comando desenvolvida em C para simplificar a visualização de permissões de arquivos em sistemas Linux.
+O `permls` traduz permissões `rwx` para **ler**, **escrever** e **executar**, exibindo os resultados em uma **tabela simples e alinhada**.
 
-Seu objetivo é **traduzir** as permissões tradicionais (`rwx`) para uma linguagem clara e acessível — **ler**, **escrever**, **executar** — exibindo-as em um **formato de tabela alinhada e minimalista**, ideal para iniciantes e para quem busca uma leitura rápida.
+## Requisitos
 
-## Funcionalidades Principais
+* `gcc`
+* `make`
 
-* **Tradução Clara:** Converte `r`, `w`, `x` para palavras em Português (`ler`, `escrever`, `executar`).
-* **Design Minimalista:** Saída formatada como uma tabela rígida e perfeitamente alinhada, eliminando ruído visual (como prefixos `OWNER:`, etc.).
-* **Abreviações:** Tipos de arquivo abreviados para `dir` e `arq` para máxima economia de espaço.
-* **Seletor de Diretório:** Use `--dir` para listar qualquer pasta do sistema.
-
-## Tecnologias e Recursos
-
-- **Linguagem:** C  
-- **APIs POSIX:** `opendir()`, `readdir()`, `stat()`  
-- **Conceito Central:** Manipulação de bits de permissão em `st_mode`
-
-## Instalação e Compilação
-
-O projeto utiliza um **Makefile** para facilitar o processo.
-
-### 1. Requisitos
-
-É necessário ter `gcc` e `make` instalados (padrão em distribuições Linux como Ubuntu 24.04 LTS):
+Instalar dependências (Ubuntu/Debian):
 
 ```bash
-sudo apt update
 sudo apt install build-essential
 ```
 
-### 2. Compilação
-
-No diretório raiz do projeto (`permls/`):
+## Compilação
 
 ```bash
 make
 ```
 
-O executável `permls` será criado diretamente na raiz do projeto.
-
-### 3. Limpeza
-
-Para remover os arquivos objeto e o executável:
+Limpar arquivos gerados:
 
 ```bash
 make clean
@@ -54,54 +29,42 @@ make clean
 
 ## Uso
 
-O `permls` pode ser executado sem argumentos (padrão: diretório atual) ou com parâmetros específicos.
-
-### Argumentos da Linha de Comando
-
-| Parâmetro          | Descrição                                                   | Padrão                   |
-|-------------------|---------------------------------------------------------------|--------------------------|
-| `--dir <caminho>` | Especifica o diretório a ser listado                         | Diretório atual (`.`)    |
-| `--full`          | Exibe permissões por extenso (LER, ESCREVER, EXECUTAR)       | Ativo se `--compact` não for usado |
-| `--compact`       | Modo enxuto (L, W, X)                                        | Desativado               |
-| `--meta`          | Inclui metadados extras (tamanho, inode, tipo)               | Desativado               |
-| `--help`          | Exibe ajuda                                                   | —                        |
-
-### Exemplos de Uso
-
-**1. Modo Padrão (Tabela Alinhada):**
+Executar no diretório atual:
 
 ```bash
 ./permls
 ```
 
-**2. Listar o diretório `/etc` no modo compacto:**
+Listar outro diretório:
 
 ```bash
-./permls --dir /etc --compact
+./permls --dir /etc
 ```
 
-**3. Listar com Metadados:**
+## Opções
 
-```bash
-./permls --meta
-```
+| Opção             | Descrição                                        |
+| ----------------- | ------------------------------------------------ |
+| `--dir <caminho>` | Diretório a ser listado                          |
+| `--full`          | Permissões completas (`ler, escrever, executar`) |
+| `--compact`       | Permissões curtas (`L, W, X`)                    |
+| `--meta`          | Exibe metadados adicionais                       |
+| `--help`          | Mostra ajuda                                     |
 
-**4. Saída Esperada (Modo Padrão):**
+## Exemplo de saída
 
 ```
 tipo  nome                 dono                         grupo                        outros
-------------------------------------------------------------------------------------------------------
-dir   .git                 ler, escrever, executar      ler, escrever, executar      ler, executar
-arq   README.md            ler, escrever                ler                          ler
+------------------------------------------------------------------------------------------------
 dir   src                  ler, escrever, executar      ler, executar                ler, executar
+arq   README.md            ler, escrever                ler                          ler
 ```
 
-## Aviso de Segurança
+## Implementação
 
-O `permls` é **somente leitura**.  
-Ele **não altera**, **não exclui** e **não modifica** permissões de arquivos. Apenas interpreta e exibe informações.
+* Linguagem: **C**
+* APIs POSIX: `opendir()`, `readdir()`, `stat()`
 
 ## Licença
 
-Este projeto está sob a licença **MIT**.
-
+Este projeto é distribuído sob os termos da Licença MIT.
