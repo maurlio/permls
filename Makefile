@@ -1,40 +1,37 @@
-# Compilador C
+# Compilador
 CC = gcc
-
-# Flags de compilação
-CFLAGS = -Wall -Wextra -std=c11 -pedantic -Iinclude
+CFLAGS = -Wall -Wextra -Wpedantic -std=c11 -Iinclude -D_POSIX_C_SOURCE=200809L
 
 # Diretórios
 SRCDIR = src
-BUILDDIR = build
-INCLUDEDIR = include
+INCDIR = include
+OBJDIR = build
 
-# Executável (na raiz do projeto)
+# Executável
 EXECUTABLE = permls
-
-# Arquivos fonte C
 SOURCES = $(wildcard $(SRCDIR)/*.c)
+OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
 
-# Arquivos objeto (.o) na pasta build
-OBJECTS = $(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(SOURCES))
-
-# Alvo principal: cria a pasta build, compila e linka o executável
-all: $(BUILDDIR) $(EXECUTABLE)
+all: $(OBJDIR) $(EXECUTABLE)
 
 # Cria o diretório build
-$(BUILDDIR):
-	@mkdir -p $@
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
 
 # Regra de linkagem: Cria o executável
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $^ -o $@
+	$(CC) $(OBJECTS) -o $@ 
 
 # Regra de compilação: Compila cada arquivo C para .o na pasta build
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpeza: remove objetos e o executável
 .PHONY: clean
 clean:
-	@rm -f $(BUILDDIR)/*.o $(EXECUTABLE)
-	@rmdir $(BUILDDIR) 2>/dev/null || true
+	@rm -f $(OBJDIR)/*.o $(EXECUTABLE)
+
+# Checagem de memória com Valgrind
+.PHONY: memcheck
+memcheck: all
+	valgrind --leak-check=full --show-leak-kinds=all ./$(EXECUTABLE) --dir .
