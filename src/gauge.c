@@ -10,10 +10,11 @@
 #include "utils.h"
 
 #define W_TYPE 5
-#define W_NAME 20
 #define W_PERM 24
+#define MAX_DYNAMIC_NAME_WIDTH 50
+#define MIN_DYNAMIC_NAME_WIDTH 10
 
-static void print_colored_name(const char *name, mode_t mode, bool use_color)
+static void print_colored_name(const char *name, mode_t mode, bool use_color, int width)
 {
     const char *color = "";
 
@@ -27,15 +28,15 @@ static void print_colored_name(const char *name, mode_t mode, bool use_color)
 
     if (use_color && strlen(color) > 0)
     {
-        printf("%s%-*.*s%s", color, W_NAME, W_NAME, name, COLOR_RESET);
+        printf("%s%-*.*s%s", color, width, width, name, COLOR_RESET);
     }
     else
     {
-        printf("%-*.*s", W_NAME, W_NAME, name);
+        printf("%-*.*s", width, width, name);
     }
 }
 
-void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode)
+void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int name_width)
 {
     char p_owner[PERMS_FORMAT_MAX_LEN];
     char p_group[PERMS_FORMAT_MAX_LEN];
@@ -49,7 +50,7 @@ void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode)
         perms_format_compact(p_other, sizeof(p_other), meta->perms.other_read, meta->perms.other_write, meta->perms.other_execute);
 
         printf("%-4s ", S_ISDIR(mode) ? "dir" : "arq");
-        print_colored_name(meta->name, mode, opts->use_color);
+        print_colored_name(meta->name, mode, opts->use_color, name_width);
         printf(" %-10s %-10s %-10s\n", p_owner, p_group, p_other);
     }
     else
@@ -59,7 +60,7 @@ void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode)
         perms_format_full(p_other, sizeof(p_other), meta->perms.other_read, meta->perms.other_write, meta->perms.other_execute);
 
         printf("%-4s ", S_ISDIR(mode) ? "dir" : "arq");
-        print_colored_name(meta->name, mode, opts->use_color);
+        print_colored_name(meta->name, mode, opts->use_color, name_width);
         printf(" %-*s %-*s %-s\n", W_PERM, p_owner, W_PERM, p_group, p_other);
     }
 }
@@ -74,6 +75,23 @@ int list_directory_contents(const char *directory, const Options *opts)
     }
 
     struct dirent *dp;
+    int optimal_name_width = MIN_DYNAMIC_NAME_WIDTH;
+
+    while ((dp = readdir(dirp)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0)
+            continue;
+
+        int len = (int)strlen(dp->d_name);
+        if (len > optimal_name_width)
+            optimal_name_width = len;
+    }
+
+    if (optimal_name_width > MAX_DYNAMIC_NAME_WIDTH)
+        optimal_name_width = MAX_DYNAMIC_NAME_WIDTH;
+
+    rewinddir(dirp);
+
     struct stat statbuf;
     FileMeta meta;
 
@@ -93,7 +111,7 @@ int list_directory_contents(const char *directory, const Options *opts)
         meta.name[sizeof(meta.name) - 1] = '\0';
 
         perms_extract(&statbuf, &meta.perms);
-        display_file_info(&meta, opts, statbuf.st_mode);
+        display_file_info(&meta, opts, statbuf.st_mode, optimal_name_width);
     }
 
     closedir(dirp);
