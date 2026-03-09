@@ -2,12 +2,11 @@
 #define PERMS_H
 
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // Definições de tamanho para segurança de buffer
 #define PERMS_FORMAT_MAX_LEN 128
-#define PERMS_COMPACT_MAX_LEN 16
 
 // Palavras para as permissões (Tradução)
 #define PERM_READ "ler"
@@ -23,9 +22,6 @@ typedef struct {
 
 typedef struct {
     char name[256];
-    char type[32];
-    long long size;
-    long inode;
     FilePermissions perms;
 } FileMeta;
 
@@ -40,15 +36,13 @@ void perms_extract(const struct stat *st, FilePermissions *fp);
 const char *perms_get_file_type(mode_t mode);
 
 /**
- * @brief Formata permissões no modo por extenso (ex: "ler, escrever").
- * @param dest Buffer de destino provido pelo chamador.
- * @param size Tamanho do buffer de destino.
+ * @brief Formata permissões no modo completo (ex: "ler, escrever").
  */
-void perms_format_full(char *dest, size_t size, bool read, bool write, bool execute);
+void perms_format_full(char *dest, size_t size, bool r, bool w, bool x);
 
 /**
- * @brief Formata permissões no modo compacto (ex: "[l][e][x]").
+ * @brief Formata permissões no modo compacto (ex: [l][e][-]).
  */
-void perms_format_compact(char *dest, size_t size, bool read, bool write, bool execute);
+void perms_format_compact(char *dest, size_t size, bool r, bool w, bool x);
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef GAUGE_H
 #define GAUGE_H
 
+#include <sys/types.h>
 #include "utils.h"
 #include "perms.h"
 
@@ -11,7 +12,7 @@
  * @param mode Modo do arquivo (obtido de stat) para determinar o tipo e as permissões.
  * @param name_width Largura da coluna de nomes.
  */
-void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int name_width);
+void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int width);
 
 /**
  * @brief Lista o conteúdo de um diretório e exibe as informações formatadas.

@@ -23,8 +23,6 @@ typedef struct
 {
     char directory[MAX_PATH_LEN];
     bool compact_mode;
-    bool show_meta;
-    bool show_help;
     bool use_color;
 } Options;
 
@@ -53,7 +51,6 @@ void display_help(void);
  * @param size Tamanho do buffer de destino.
  * @param p1 Primeiro componente (diretório).
  * @param p2 Segundo componente (nome do ficheiro).
- * @return 0 em sucesso, -1 se houver truncamento ou erro.
  */
 int path_join(char *dest, size_t size, const char *p1, const char *p2);
 
