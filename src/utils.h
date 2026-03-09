@@ -10,6 +10,13 @@
 #define MAX_PATH_LEN 4096
 
 /**
+ * @brief Códigos de cores ANSI para formatação de saída no terminal.
+ */
+#define COLOR_BLUE    "\x1b[34m"
+#define COLOR_GREEN   "\x1b[32m"
+#define COLOR_RESET   "\x1b[0m"
+
+/**
  * @brief Estrutura para armazenar as opções de configuração do programa.
  */
 typedef struct
@@ -18,6 +25,7 @@ typedef struct
     bool compact_mode;
     bool show_meta;
     bool show_help;
+    bool use_color;
 } Options;
 
 /**

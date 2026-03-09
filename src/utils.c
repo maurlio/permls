@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "utils.h"
 
 void init_options(Options *opts)
@@ -10,6 +11,7 @@ void init_options(Options *opts)
     opts->compact_mode = false;
     opts->show_meta = false;
     opts->show_help = false;
+    opts->use_color = isatty(STDOUT_FILENO);
 }
 
 int path_join(char *dest, size_t size, const char *p1, const char *p2)
