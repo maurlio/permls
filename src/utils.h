@@ -1,52 +1,52 @@
-/**
- * @file utils.h
- * @brief Definições de estruturas e protótipos para manipulação de argumentos.
- */
-
 #ifndef UTILS_H
 #define UTILS_H
 
 #include <stdbool.h>
-
-// Tamanho máximo do caminho do diretório (valor POSIX comum)
-#define MAX_PATH_LEN 4096
-
-// ESTRUTURA DE OPÇÕES DO PROGRAMA
+#include <stddef.h>
 
 /**
- * @struct Options
- * @brief Configurações obtidas dos argumentos de linha de comando.
+ * @brief Tamanho máximo para caminhos de ficheiros.
+ */
+#define MAX_PATH_LEN 4096
+
+/**
+ * @brief Estrutura para armazenar as opções de configuração do programa.
  */
 typedef struct
 {
-    char directory[MAX_PATH_LEN]; // Caminho do diretório
-    bool compact_mode;            // true para modo --compact (padrão é --full)
-    bool show_meta;               // true se --meta foi especificado
-    bool show_help;               // true se --help foi especificado
+    char directory[MAX_PATH_LEN];
+    bool compact_mode;
+    bool show_meta;
+    bool show_help;
 } Options;
 
-// PROTÓTIPOS DE FUNÇÕES
-
 /**
- * @brief Inicializa Options com defaults: dir=".", --full, sem --meta.
- *
- * @param opts Ponteiro para a estrutura Options.
+ * @brief Inicializa a estrutura de opções com valores padrão.
+ * @param opts Ponteiro para a estrutura de opções a ser inicializada.
  */
 void init_options(Options *opts);
 
 /**
- * @brief Analisa os argumentos de linha de comando.
- *
+ * @brief Analisa os argumentos da linha de comando e preenche a estrutura de opções.
  * @param argc Número de argumentos.
- * @param argv Vetor de argumentos.
- * @param opts Ponteiro para Options onde as configs serão salvas.
- * @return 0 em sucesso, -1 em erro de argumento.
+ * @param argv Array de strings contendo os argumentos.
+ * @param opts Ponteiro para a estrutura de opções a ser preenchida.
  */
 int parse_arguments(int argc, char *argv[], Options *opts);
 
 /**
- * @brief Exibe a mensagem de ajuda e uso.
+ * @brief Exibe a mensagem de ajuda com informações sobre o uso do programa e suas opções.
  */
 void display_help(void);
+
+/**
+ * @brief Une dois componentes de um caminho de forma segura.
+ * @param dest Buffer de destino.
+ * @param size Tamanho do buffer de destino.
+ * @param p1 Primeiro componente (diretório).
+ * @param p2 Segundo componente (nome do ficheiro).
+ * @return 0 em sucesso, -1 se houver truncamento ou erro.
+ */
+int path_join(char *dest, size_t size, const char *p1, const char *p2);
 
 #endif

@@ -5,7 +5,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 #include "gauge.h"
+#include "utils.h"
 
 #define W_TYPE 5
 #define W_NAME 20
@@ -57,7 +59,10 @@ int list_directory_contents(const char *directory, const Options *opts)
 {
     DIR *dirp = opendir(directory);
     if (!dirp)
+    {
+        fprintf(stderr, "Erro ao abrir diretório '%s': %s\n", directory, strerror(errno));
         return -1;
+    }
 
     struct dirent *dp;
     struct stat statbuf;
@@ -69,10 +74,17 @@ int list_directory_contents(const char *directory, const Options *opts)
             continue;
 
         char full_path[MAX_PATH_LEN];
-        snprintf(full_path, MAX_PATH_LEN, "%s/%s", directory, dp->d_name);
+        if (path_join(full_path, sizeof(full_path), directory, dp->d_name) != 0)
+        {
+            fprintf(stderr, "Aviso: Caminho muito longo ignorado: %s\n", dp->d_name);
+            continue;
+        }
 
         if (lstat(full_path, &statbuf) == -1)
+        {
+            fprintf(stderr, "Aviso: Não foi possível ler metadados de '%s': %s\n", dp->d_name, strerror(errno));
             continue;
+        }
 
         strncpy(meta.name, dp->d_name, sizeof(meta.name) - 1);
         meta.name[sizeof(meta.name) - 1] = '\0';
