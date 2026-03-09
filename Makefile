@@ -35,3 +35,15 @@ clean:
 .PHONY: memcheck
 memcheck: all
 	valgrind --leak-check=full --show-leak-kinds=all ./$(EXECUTABLE) --dir .
+
+TEST_DIR = tests
+TEST_SRC = $(TEST_DIR)/test_perms.c
+TEST_EXE = run_tests
+
+# Compila e executa os testes
+test: $(SRCDIR)/perms.c $(INCDIR)/perms.h
+	$(CC) $(CFLAGS) $(TEST_SRC) $(SRCDIR)/perms.c -o $(TEST_EXE)
+	@./$(TEST_EXE)
+	@rm -f $(TEST_EXE)
+
+.PHONY: all clean test
