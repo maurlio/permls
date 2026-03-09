@@ -63,3 +63,25 @@ int parse_arguments(int argc, char *argv[], Options *opts)
     }
     return 0;
 }
+
+void format_size_human(char *dest, size_t size, long long bytes)
+{
+    const char *units[] = {"B", "K", "M", "G", "T"};
+    int i = 0;
+    double count = (double)bytes;
+
+    while (count >= 1024 && i < 4)
+    {
+        count /= 1024;
+        i++;
+    }
+
+    if (i == 0)
+    {
+        snprintf(dest, size, "%lld%s", bytes, units[i]);
+    }
+    else
+    {
+        snprintf(dest, size, "%.1f%s", count, units[i]);
+    }
+}

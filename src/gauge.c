@@ -40,6 +40,9 @@ static void print_colored_name(const char *name, mode_t mode, bool use_color, in
 void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int width, const char *parent_dir)
 {
     char p_owner[PERMS_FORMAT_MAX_LEN], p_group[PERMS_FORMAT_MAX_LEN], p_other[PERMS_FORMAT_MAX_LEN];
+    char size_buf[16];
+    format_size_human(size_buf, sizeof(size_buf), meta->size);
+
     void (*fmt)(char *, size_t, bool, bool, bool) = opts->compact_mode ? perms_format_compact : perms_format_full;
 
     fmt(p_owner, sizeof(p_owner), meta->perms.owner_read, meta->perms.owner_write, meta->perms.owner_execute);
@@ -48,7 +51,7 @@ void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, i
 
     printf("%-4s ", perms_get_file_type(mode));
     print_colored_name(meta->name, mode, opts->use_color, width);
-    printf(" %s | %s | %s", p_owner, p_group, p_other);
+    printf(" %6s | %s | %s | %s", size_buf, p_owner, p_group, p_other);
 
     if (S_ISLNK(mode))
     {
@@ -104,6 +107,7 @@ int list_directory_contents(const char *directory, const Options *opts)
         if (lstat(path, &statbuf) == 0)
         {
             strncpy(meta.name, nameList[i]->d_name, sizeof(meta.name) - 1);
+            meta.size = statbuf.st_size;
             perms_extract(&statbuf, &meta.perms);
             display_file_info(&meta, opts, statbuf.st_mode, width, directory);
         }

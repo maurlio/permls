@@ -12,16 +12,19 @@
 #define PERM_READ "ler"
 #define PERM_WRITE "escrever"
 #define PERM_EXECUTE "executar"
-#define PERM_NONE "-" 
+#define PERM_NONE "-"
 
-typedef struct {
+typedef struct
+{
     bool owner_read, owner_write, owner_execute;
     bool group_read, group_write, group_execute;
     bool other_read, other_write, other_execute;
 } FilePermissions;
 
-typedef struct {
+typedef struct
+{
     char name[256];
+    long long size;
     FilePermissions perms;
 } FileMeta;
 

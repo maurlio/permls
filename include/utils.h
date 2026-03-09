@@ -54,4 +54,12 @@ void display_help(void);
  */
 int path_join(char *dest, size_t size, const char *p1, const char *p2);
 
+/**
+ * @brief Formata um tamanho em bytes para uma representação mais legível (B, K, M, G, T).
+ * @param dest Buffer de destino.
+ * @param size Tamanho do buffer de destino.
+ * @param bytes Tamanho em bytes a ser formatado.
+ */
+void format_size_human(char *dest, size_t size, long long bytes);
+
 #endif
