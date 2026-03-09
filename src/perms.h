@@ -1,9 +1,3 @@
-/**
- * @file perms.h
- * @brief Definições de estruturas e protótipos para interpretação e tradução
- * das permissões de arquivo (rwx).
- */
-
 #ifndef PERMS_H
 #define PERMS_H
 
@@ -11,88 +5,50 @@
 #include <sys/types.h>
 #include <stdbool.h>
 
-// Palavras para as permissões
+// Definições de tamanho para segurança de buffer
+#define PERMS_FORMAT_MAX_LEN 128
+#define PERMS_COMPACT_MAX_LEN 16
+
+// Palavras para as permissões (Tradução)
 #define PERM_READ "ler"
 #define PERM_WRITE "escrever"
 #define PERM_EXECUTE "executar"
-#define PERM_NONE "-" // Caractere para permissão ausente
+#define PERM_NONE "-" 
 
-// ESTRUTURAS
-
-/**
- * @struct FilePermissions
- * @brief Status booleano de permissão (read/write/execute) por categoria
- * (Owner, Group, Other).
- */
-typedef struct
-{
-    // OWNER
-    bool owner_read;
-    bool owner_write;
-    bool owner_execute;
-
-    // GROUP
-    bool group_read;
-    bool group_write;
-    bool group_execute;
-
-    // OTHER
-    bool other_read;
-    bool other_write;
-    bool other_execute;
+typedef struct {
+    bool owner_read, owner_write, owner_execute;
+    bool group_read, group_write, group_execute;
+    bool other_read, other_write, other_execute;
 } FilePermissions;
 
-/**
- * @struct FileMeta
- * @brief Metadados e permissões de um arquivo.
- */
-typedef struct
-{
-    char name[256];        // Nome do arquivo
-    char type[32];         // Tipo do arquivo (ex: "arquivo", "diretorio")
-    long long size;        // Tamanho em bytes
-    long inode;            // Número do Inode
-    FilePermissions perms; // Permissões extraídas
+typedef struct {
+    char name[256];
+    char type[32];
+    long long size;
+    long inode;
+    FilePermissions perms;
 } FileMeta;
 
-// PROTÓTIPOS DE FUNÇÕES
-
 /**
- * @brief Extrai os bits de permissão de `stat` para `FilePermissions`.
- *
- * Mapeia bits S_IRUSR, S_IWUSR, etc., para a estrutura booleana.
- *
- * @param st Ponteiro para a estrutura stat.
- * @param fp Ponteiro para a estrutura FilePermissions de destino.
+ * @brief Extrai bits de permissão de mode_t para a estrutura FilePermissions.
  */
 void perms_extract(const struct stat *st, FilePermissions *fp);
 
 /**
- * @brief Determina o tipo de arquivo a partir de `mode_t` e retorna o nome em Português.
- *
- * @param mode O campo st_mode da estrutura stat.
- * @return String constante (char*) representando o tipo (ex: "diretório").
+ * @brief Retorna o tipo de arquivo traduzido (ex: "diretório").
  */
 const char *perms_get_file_type(mode_t mode);
 
 /**
- * @brief Constrói a string de permissão no modo --full (descritivo).
- *
- * @param read Status de LER.
- * @param write Status de ESCREVER.
- * @param execute Status de EXECUTAR.
- * @return String formatada (ex: "ler, escrever, -"). (Alocada dinamicamente)
+ * @brief Formata permissões no modo por extenso (ex: "ler, escrever").
+ * @param dest Buffer de destino provido pelo chamador.
+ * @param size Tamanho do buffer de destino.
  */
-char *perms_format_full(bool read, bool write, bool execute);
+void perms_format_full(char *dest, size_t size, bool read, bool write, bool execute);
 
 /**
- * @brief Constrói a string de permissão no modo --compact.
- *
- * @param read Status de LER.
- * @param write Status de ESCREVER.
- * @param execute Status de EXECUTAR.
- * @return String formatada (ex: "[l][e][x]"). (Alocada dinamicamente)
+ * @brief Formata permissões no modo compacto (ex: "[l][e][x]").
  */
-char *perms_format_compact(bool read, bool write, bool execute);
+void perms_format_compact(char *dest, size_t size, bool read, bool write, bool execute);
 
-#endif // PERMS_H
+#endif
