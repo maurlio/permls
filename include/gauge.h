@@ -12,7 +12,7 @@
  * @param mode Modo do arquivo (obtido de stat) para determinar o tipo e as permissões.
  * @param name_width Largura da coluna de nomes.
  */
-void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int width);
+void display_file_info(const FileMeta *meta, const Options *opts, mode_t mode, int width, const char *parent_dir);
 
 /**
  * @brief Lista o conteúdo de um diretório e exibe as informações formatadas.
