@@ -1,69 +1,79 @@
 # permls
 
-Ferramenta de linha de comando em **C** para visualizar permissões de arquivos no Linux de forma clara.
+Um utilitário de linha de comando (CLI) minimalista, escrito em C (C11/POSIX), para listagem de diretórios. O permls oferece uma visualização rápida e nativa do sistema de arquivos, destacando permissões de segurança e tamanhos em formato legível.
 
-O `permls` traduz permissões `rwx` para **ler**, **escrever** e **executar**, exibindo os resultados em uma **tabela simples e alinhada**.
+# Funcionalidades
 
-## Requisitos
+* **Visualização enxuta:** saída alinhada com separador nativo.
+* **Tamanhos legíveis:** conversão automática de bytes para K, M e G.
+* **Cores inteligentes:** destaque para diretórios (azul) e executáveis (verde), com detecção automática de TTY e opção de desativar.
+* **Arquitetura limpa:** separação entre lógica de permissões, formatação visual e utilitários do sistema.
 
-* `gcc`
-* `make`
+## Estrutura do Projeto
 
-Instalar dependências (Ubuntu/Debian):
+O projeto segue uma arquitetura modular, facilitando a manutenção e a escalabilidade:
 
-```bash
-sudo apt install build-essential
+```text
+permls/
+├── Makefile              # Orquestração de build, testes e análise de memória
+├── include/              # Arquivos de cabeçalho públicos (.h)
+│   ├── gauge.h           # Interface de renderização
+│   ├── perms.h           # Lógica de bits e segurança POSIX
+│   └── utils.h           # Utilitários de strings e caminhos
+├── src/                  # Implementações (.c)
+│   ├── gauge.c           
+│   ├── main.c            # Ponto de entrada e injeção de dependências
+│   ├── perms.c           
+│   └── utils.c           
+└── tests/                # Suíte de validação
+    ├── integration.sh    # Teste de ponta a ponta (E2E) no bash
+    └── unit_tests.c      # Validação matemática e lógica isolada
 ```
 
 ## Compilação
+
+O projeto requer apenas o `gcc` e o utilitário `make`.
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/maurlio/permls.git
+cd permls
+```
+
+2. Compile o binário principal:
 
 ```bash
 make
 ```
 
-Limpar arquivos gerados:
-
-```bash
-make clean
-```
+O executável `permls` será gerado na raiz do projeto, e os objetos compilados ficarão isolados na pasta `build/`.
 
 ## Uso
 
-Executar no diretório atual:
+Execute o binário passando o diretório alvo ou utilize as flags disponíveis:
 
 ```bash
+# Lista o diretório atual
 ./permls
+
+# Lista um diretório específico
+./permls --dir /etc
+
+# Desativa as cores (ideal para pipes e redirecionamentos)
+./permls --no-color
+
+# Exibe a ajuda
+./permls --help
 ```
 
-Listar outro diretório:
+## Testes
+
+O projeto conta com uma suíte de testes dividida em unidade e integração. Para rodar todas as validações de uma só vez:
 
 ```bash
-./permls --dir /etc
+make test
 ```
-
-## Opções
-
-| Opção             | Descrição                                        |
-| ----------------- | ------------------------------------------------ |
-| `--dir <caminho>` | Diretório a ser listado                          |
-| `--full`          | Permissões completas (`ler, escrever, executar`) |
-| `--compact`       | Permissões curtas (`L, W, X`)                    |
-| `--meta`          | Exibe metadados adicionais                       |
-| `--help`          | Mostra ajuda                                     |
-
-## Exemplo de saída
-
-```
-tipo  nome                 dono                         grupo                        outros
-------------------------------------------------------------------------------------------------
-dir   src                  ler, escrever, executar      ler, executar                ler, executar
-arq   README.md            ler, escrever                ler                          ler
-```
-
-## Implementação
-
-* Linguagem: **C**
-* APIs POSIX: `opendir()`, `readdir()`, `stat()`
 
 ## Licença
 
