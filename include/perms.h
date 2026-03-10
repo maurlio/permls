@@ -3,49 +3,30 @@
 
 #include <sys/stat.h>
 #include <stdbool.h>
-#include <stddef.h>
-
-// Definições de tamanho para segurança de buffer
-#define PERMS_FORMAT_MAX_LEN 128
-
-// Palavras para as permissões (Tradução)
-#define PERM_READ "ler"
-#define PERM_WRITE "escrever"
-#define PERM_EXECUTE "executar"
-#define PERM_NONE "-"
 
 typedef struct
 {
-    bool owner_read, owner_write, owner_execute;
-    bool group_read, group_write, group_execute;
-    bool other_read, other_write, other_execute;
-} FilePermissions;
+    bool read, write, execute;
+} AccessLevel;
 
 typedef struct
 {
-    char name[256];
-    long long size;
-    FilePermissions perms;
-} FileMeta;
+    AccessLevel user, group, other;
+} FileSecurity;
 
 /**
- * @brief Extrai bits de permissão de mode_t para a estrutura FilePermissions.
+ * Extrai os bits de permissão do sistema para a estrutura interna
  */
-void perms_extract(const struct stat *st, FilePermissions *fp);
+void security_extract(mode_t mode, FileSecurity *security);
 
 /**
- * @brief Retorna o tipo de arquivo traduzido (ex: "diretório").
+ * Retorna uma string representando o tipo (ex: "dir", "link", "arq").
  */
-const char *perms_get_file_type(mode_t mode);
+const char* security_get_type_label(mode_t mode);
 
 /**
- * @brief Formata permissões no modo completo (ex: "ler, escrever").
+ * Formata o trio de permissões (ex: rwx ou r--)
  */
-void perms_format_full(char *dest, size_t size, bool r, bool w, bool x);
-
-/**
- * @brief Formata permissões no modo compacto (ex: [l][e][-]).
- */
-void perms_format_compact(char *dest, size_t size, bool r, bool w, bool x);
+void security_format_triplet(char *dest, AccessLevel level);
 
 #endif

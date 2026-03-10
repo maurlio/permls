@@ -1,49 +1,31 @@
-# Compilador
 CC = gcc
 CFLAGS = -Wall -Wextra -Wpedantic -std=c11 -Iinclude -D_POSIX_C_SOURCE=200809L
-
-# Diretórios
 SRCDIR = src
-INCDIR = include
 OBJDIR = build
+TARGET = permls
 
-# Executável
-EXECUTABLE = permls
-SOURCES = $(wildcard $(SRCDIR)/*.c)
+SOURCES = $(SRCDIR)/utils.c $(SRCDIR)/perms.c $(SRCDIR)/gauge.c
 OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
 
-all: $(OBJDIR) $(EXECUTABLE)
+all: prepare $(TARGET)
 
-# Cria o diretório build
-$(OBJDIR):
+prepare:
 	@mkdir -p $(OBJDIR)
 
-# Regra de linkagem: Cria o executável
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $@ 
+$(TARGET): $(OBJECTS) $(OBJDIR)/main.o
+	$(CC) $(OBJECTS) $(OBJDIR)/main.o -o $@
 
-# Regra de compilação: Compila cada arquivo C para .o na pasta build
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Limpeza: remove objetos e o executável
-.PHONY: clean
+test: prepare
+	$(CC) $(CFLAGS) tests/unit_tests.c src/utils.c src/perms.c -o run_unit_tests
+	./run_unit_tests
+	@rm run_unit_tests
+	@chmod +x tests/integration.sh
+	./tests/integration.sh
+
 clean:
-	@rm -f $(OBJDIR)/*.o $(EXECUTABLE)
+	rm -rf $(OBJDIR) $(TARGET)
 
-# Checagem de memória com Valgrind
-.PHONY: memcheck
-memcheck: all
-	valgrind --leak-check=full --show-leak-kinds=all ./$(EXECUTABLE) --dir .
-
-TEST_DIR = tests
-TEST_SRC = $(TEST_DIR)/test_perms.c
-TEST_EXE = run_tests
-
-# Compila e executa os testes
-test: $(SRCDIR)/perms.c $(INCDIR)/perms.h
-	$(CC) $(CFLAGS) $(TEST_SRC) $(SRCDIR)/perms.c -o $(TEST_EXE)
-	@./$(TEST_EXE)
-	@rm -f $(TEST_EXE)
-
-.PHONY: all clean test
+.PHONY: all clean prepare test

@@ -4,62 +4,35 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/**
- * @brief Tamanho máximo para caminhos de ficheiros.
- */
-#define MAX_PATH_LEN 4096
+#define MAX_PATH 4096
+#define COLOR_BLUE "\x1b[34m"
+#define COLOR_GREEN "\x1b[32m"
+#define COLOR_RESET "\x1b[0m"
 
-/**
- * @brief Códigos de cores ANSI para formatação de saída no terminal.
- */
-#define COLOR_BLUE    "\x1b[34m"
-#define COLOR_GREEN   "\x1b[32m"
-#define COLOR_RESET   "\x1b[0m"
-
-/**
- * @brief Estrutura para armazenar as opções de configuração do programa.
- */
 typedef struct
 {
-    char directory[MAX_PATH_LEN];
-    bool compact_mode;
+    char target_dir[MAX_PATH];
     bool use_color;
-} Options;
+} Config;
 
 /**
- * @brief Inicializa a estrutura de opções com valores padrão.
- * @param opts Ponteiro para a estrutura de opções a ser inicializada.
+ * Inicializa a estrutura de opções com valores padrão.
  */
-void init_options(Options *opts);
+void config_init(Config *cfg);
 
 /**
- * @brief Analisa os argumentos da linha de comando e preenche a estrutura de opções.
- * @param argc Número de argumentos.
- * @param argv Array de strings contendo os argumentos.
- * @param opts Ponteiro para a estrutura de opções a ser preenchida.
+ * Analisa os argumentos da linha de comando e preenche a estrutura de opções.
  */
-int parse_arguments(int argc, char *argv[], Options *opts);
+int config_parse_args(int argc, char *argv[], Config *cfg);
 
 /**
- * @brief Exibe a mensagem de ajuda com informações sobre o uso do programa e suas opções.
+ * Formata um tamanho em bytes para uma representação mais legível (B, K, M, G, T).
  */
-void display_help(void);
+void format_human_size(char *dest, long long bytes);
 
 /**
- * @brief Une dois componentes de um caminho de forma segura.
- * @param dest Buffer de destino.
- * @param size Tamanho do buffer de destino.
- * @param p1 Primeiro componente (diretório).
- * @param p2 Segundo componente (nome do ficheiro).
+ * Une dois componentes de um caminho de forma segura.
  */
-int path_join(char *dest, size_t size, const char *p1, const char *p2);
-
-/**
- * @brief Formata um tamanho em bytes para uma representação mais legível (B, K, M, G, T).
- * @param dest Buffer de destino.
- * @param size Tamanho do buffer de destino.
- * @param bytes Tamanho em bytes a ser formatado.
- */
-void format_size_human(char *dest, size_t size, long long bytes);
+int path_combine(char *dest, size_t size, const char *p1, const char *p2);
 
 #endif

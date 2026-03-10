@@ -4,84 +4,51 @@
 #include <unistd.h>
 #include "utils.h"
 
-void init_options(Options *opts)
+void config_init(Config *cfg)
 {
-    strncpy(opts->directory, ".", MAX_PATH_LEN - 1);
-    opts->directory[MAX_PATH_LEN - 1] = '\0';
-    opts->compact_mode = false;
-    opts->use_color = isatty(STDOUT_FILENO);
+    strncpy(cfg->target_dir, ".", MAX_PATH - 1);
+    cfg->use_color = isatty(STDOUT_FILENO);
 }
 
-int path_join(char *dest, size_t size, const char *p1, const char *p2)
-{
-    size_t len1 = strlen(p1);
-
-    // Verifica se p1 já termina com uma barra
-    int has_slash = (len1 > 0 && p1[len1 - 1] == '/');
-
-    // Formata o caminho completo
-    int written = snprintf(dest, size, "%s%s%s", p1, has_slash ? "" : "/", p2);
-
-    return (written < 0 || (size_t)written >= size) ? -1 : 0;
-}
-
-void display_help(void)
-{
-    printf("\nUso: permls [OPÇÕES]\n\n");
-    printf("  --dir <path>    Diretório (Padrão: '.')\n");
-    printf("  --compact       Modo enxuto\n");
-    printf("  --no-color      Desativa cores\n");
-}
-
-int parse_arguments(int argc, char *argv[], Options *opts)
+int config_parse_args(int argc, char *argv[], Config *cfg)
 {
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "--dir") == 0 && i + 1 < argc)
         {
-            strncpy(opts->directory, argv[++i], MAX_PATH_LEN - 1);
-        }
-        else if (strcmp(argv[i], "--compact") == 0)
-        {
-            opts->compact_mode = true;
+            strncpy(cfg->target_dir, argv[++i], MAX_PATH - 1);
         }
         else if (strcmp(argv[i], "--no-color") == 0)
         {
-            opts->use_color = false;
+            cfg->use_color = false;
         }
         else if (strcmp(argv[i], "--help") == 0)
         {
-            display_help();
+            printf("Uso: permls [--dir <path>] [--no-color]\n");
             exit(0);
-        }
-        else
-        {
-            fprintf(stderr, "Argumento desconhecido: %s\n", argv[i]);
-            display_help();
-            return -1;
         }
     }
     return 0;
 }
 
-void format_size_human(char *dest, size_t size, long long bytes)
+void format_human_size(char *dest, long long bytes)
 {
     const char *units[] = {"B", "K", "M", "G", "T"};
     int i = 0;
-    double count = (double)bytes;
+    double size = (double)bytes;
 
-    while (count >= 1024 && i < 4)
+    while (size >= 1024 && i < 4)
     {
-        count /= 1024;
+        size /= 1024;
         i++;
     }
 
-    if (i == 0)
-    {
-        snprintf(dest, size, "%lld%s", bytes, units[i]);
-    }
-    else
-    {
-        snprintf(dest, size, "%.1f%s", count, units[i]);
-    }
+    sprintf(dest, i == 0 ? "%.0f%s" : "%.1f%s", size, units[i]);
+}
+
+int path_combine(char *dest, size_t size, const char *p1, const char *p2)
+{
+    size_t len1 = strlen(p1);
+    int has_slash = (len1 > 0 && p1[len1 - 1] == '/');
+    return snprintf(dest, size, "%s%s%s", p1, has_slash ? "" : "/", p2) >= (int)size ? -1 : 0;
 }

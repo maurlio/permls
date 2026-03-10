@@ -1,17 +1,20 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "gauge.h"
 
-/**
- * @brief Função principal do programa.
- */
 int main(int argc, char *argv[])
 {
-    Options opts;
-    init_options(&opts);
-    parse_arguments(argc, argv, &opts);
+    Config cfg;
+    config_init(&cfg);
 
-    if (list_directory_contents(opts.directory, &opts) != 0)
+    if (config_parse_args(argc, argv, &cfg) != 0)
     {
+        return EXIT_FAILURE;
+    }
+
+    if (core_list_directory(&cfg) != 0)
+    {
+        perror("Erro ao acessar diretório");
         return EXIT_FAILURE;
     }
 
